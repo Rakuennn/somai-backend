@@ -22,6 +22,14 @@ export class AuthException extends GlobalException {
     static unauthorized(): AuthException {
         return new AuthException(ErrorDefinitions.AUTH_UNAUTHORIZED);
     }
+
+    static refreshTokenRequired(): AuthException {
+        return new AuthException(ErrorDefinitions.AUTH_REFRESH_TOKEN_REQUIRED);
+    }
+
+    static googleCredentialsNotFound(): AuthException {
+        return new AuthException(ErrorDefinitions.AUTH_GOOGLE_CREDENTIALS_NOT_FOUND);
+    }
 }
 
 export default AuthException;

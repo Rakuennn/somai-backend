@@ -1,10 +1,15 @@
-import express, { Request, Response } from 'express';
+import express, { NextFunction, Request, Response } from 'express';
 import { BaseResponse } from '../../core/types/base.response';
-import { sendSuccess } from '../../core/utils/response.helper';
+import { sendSuccess, sendSuccessNoData } from '../../core/utils/response.helper';
 import { authenticate } from '../../middlewares/auth.middleware';
+import { googleAuth } from '../../middlewares/google.auth.middleware';
 import { ContentsRequest, RefineContentsRequest, SubmitContentsRequest } from './content.request';
 import { ContentsResponse, N8nResponse } from './content.response';
+import { ContentException } from './exception';
 import axios from 'axios';
+import { Platform } from '../../core/types/platform.enum';
+import { appendToSpreadsheet } from './content.service';
+
 
 const router = express.Router();
 /**
@@ -13,6 +18,8 @@ const router = express.Router();
  *   post:
  *     summary: Create contents
  *     description: Create contents
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -29,9 +36,12 @@ const router = express.Router();
  *     responses:
  *       200:
  *         description: Contents created.
+ *       401:
+ *         description: Unauthorized
  */
 
 router.post('/contents',
+    authenticate,
     async (req: Request<{}, {}, ContentsRequest>, res: Response<BaseResponse<ContentsResponse>>) => {
         const { brief, platforms } = req.body;
 
@@ -54,7 +64,7 @@ router.post('/contents',
 
         const contents = n8nData.generated_content.map((item, index) => ({
             id: String(index + 1),
-            platformId: item.json.platform,
+            platform: item.json.platform as Platform,
             brief: brief,
             content: item.json.content.parts[0].text
         }));
@@ -62,20 +72,67 @@ router.post('/contents',
         sendSuccess(res, { contents }, 'Contents created');
     });
 
-router.post('/contents/:platformId/refine',
+/**
+ * @swagger
+ * /contents/{platformId}/refine:
+ *   post:
+ *     summary: Refine contents
+ *     description: Refine contents
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               content:
+ *                 type: string
+ *               feedback:
+ *                 type: string
+ *               platform:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Contents refined.
+ *       401:
+ *         description: Unauthorized
+ */
+
+router.post('/contents/refine',
     authenticate,
-    (req: Request<{ platformId: string }, {}, RefineContentsRequest>, res: Response<BaseResponse<ContentsResponse>>) => {
-        const { brief, content, feedback } = req.body;
+    (req: Request<{}, {}, RefineContentsRequest>, res: Response<BaseResponse<ContentsResponse>>) => {
+        const { content, feedback, platform } = req.body;
 
         // Todo: Implement refine contents
     });
 
-router.post('/contents/:platformId/submit',
-    authenticate,
-    (req: Request<{ platformId: string }, {}, SubmitContentsRequest>, res: Response<BaseResponse<ContentsResponse>>) => {
-        const { content } = req.body;
 
-        // Todo: Implement submit contents
+router.post('/contents/submit',
+    authenticate,
+    googleAuth,
+    async (req: Request<{}, {}, SubmitContentsRequest>, res: Response<BaseResponse>, next: NextFunction) => {
+        try {
+            const { content, platform, link } = req.body;
+            const { accessToken, spreadsheetId } = req.google!;
+
+            const success = await appendToSpreadsheet(accessToken, spreadsheetId, {
+                platform,
+                timestamp: new Date().toISOString(),
+                link,
+                content
+            });
+
+            if (!success) {
+                return next(ContentException.spreadsheetSaveFailed());
+            }
+
+            sendSuccessNoData(res, 'Content submitted successfully');
+        } catch (error) {
+            next(error);
+        }
     });
+
 
 export default router;

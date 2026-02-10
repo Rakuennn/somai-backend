@@ -6,11 +6,13 @@ export interface ContentsRequest {
 }
 
 export interface RefineContentsRequest {
-    brief: string;
     content: string;
     feedback: string;
+    platform: Platform;
 }
 
 export interface SubmitContentsRequest {
     content: string;
+    platform: Platform;
+    link?: string;
 }

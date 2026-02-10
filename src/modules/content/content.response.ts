@@ -1,6 +1,8 @@
+import { Platform } from "../../core/types/platform.enum";
+
 export interface ContentItem {
     id: string;
-    platformId: string;
+    platform: Platform;
     brief: string;
     content: string;
 }
