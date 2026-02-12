@@ -9,11 +9,18 @@ export const ErrorDefinitions: Record<string, ErrorDefinition> = {
     AUTH_GOOGLE_CREDENTIALS_NOT_FOUND: { code: 'AUTH_GOOGLE_CREDENTIALS_NOT_FOUND', status: 400, message: 'Google credentials not found in token' },
     AUTH_UNAUTHORIZED: { code: 'AUTH_UNAUTHORIZED', status: 401, message: 'Unauthorized' },
     AUTH_FORBIDDEN: { code: 'AUTH_FORBIDDEN', status: 403, message: 'Forbidden' },
+    AUTH_FACEBOOK_FAILED: { code: 'AUTH_FACEBOOK_FAILED', status: 401, message: 'Facebook authentication failed' },
     USER_NOT_FOUND: { code: 'USER_NOT_FOUND', status: 404, message: 'User not found' },
     RESOURCE_NOT_FOUND: { code: 'RESOURCE_NOT_FOUND', status: 404, message: 'Resource not found' },
     VALIDATION_ERROR: { code: 'VALIDATION_ERROR', status: 400, message: 'Validation error' },
     INTERNAL_ERROR: { code: 'INTERNAL_ERROR', status: 500, message: 'Internal server error' },
     CONTENT_SPREADSHEET_SAVE_FAILED: { code: 'CONTENT_SPREADSHEET_SAVE_FAILED', status: 500, message: 'Failed to save to spreadsheet' },
+    CONTENT_N8N_FAILED: { code: 'CONTENT_N8N_FAILED', status: 500, message: 'Failed to generate content' },
+    CONTENT_POLLING_TIMEOUT: { code: 'CONTENT_POLLING_TIMEOUT', status: 504, message: 'Content generation timed out' },
+    CONTENT_POLLING_CANCELLED: { code: 'CONTENT_POLLING_CANCELLED', status: 499, message: 'Content generation was cancelled' },
+    CONTENT_POLLING_UNEXPECTED_STATUS: { code: 'CONTENT_POLLING_UNEXPECTED_STATUS', status: 500, message: 'Unexpected status from content generation' },
+    PLATFORM_NOT_CONNECTED: { code: 'PLATFORM_NOT_CONNECTED', status: 400, message: 'Platform not connected' },
+    AUTH_GOOGLE_FAILED: { code: 'AUTH_GOOGLE_FAILED', status: 401, message: 'Google authentication failed' },
 };
 
 export default ErrorDefinitions;

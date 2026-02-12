@@ -1,5 +1,5 @@
 import cors from 'cors';
-import express, { Application } from 'express';
+import express, { Application, Request, Response, NextFunction } from 'express';
 import swaggerJSDoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
 import router from './router';
@@ -37,7 +37,7 @@ const swaggerDefinition = {
 
 const options = {
     swaggerDefinition,
-    apis: ['./src/modules/**/*.ts'],
+    apis: ['./src/modules/**/*.ts', './dist/modules/**/*.js'],
 };
 
 const swaggerSpec = swaggerJSDoc(options);
@@ -45,7 +45,14 @@ const swaggerSpec = swaggerJSDoc(options);
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cors());
-app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+app.use('/docs', swaggerUi.serve, (req: Request, res: Response, next: NextFunction) => {
+    const protocol = req.headers['x-forwarded-proto'] || req.protocol;
+    const host = req.headers['x-forwarded-host'] || req.get('host');
+    (swaggerSpec as any).servers = [
+        { url: `${protocol}://${host}`, description: 'Current server' },
+    ];
+    swaggerUi.setup(swaggerSpec)(req, res, next);
+});
 app.use(router);
 app.use(errorHandler);
 

@@ -40,7 +40,7 @@ export async function findExistingSpreadsheet(
 export async function createUserSpreadsheet(
     accessToken: string,
     title: string = 'Somai History'
-): Promise<string | undefined> {
+): Promise<string> {
     try {
         const sheets = createSheetsClient(accessToken);
         const spreadsheet = await sheets.spreadsheets.create({
@@ -49,11 +49,11 @@ export async function createUserSpreadsheet(
             }
         });
 
-        const spreadsheetId = spreadsheet.data.spreadsheetId ?? undefined;
+        const spreadsheetId = spreadsheet.data.spreadsheetId!;
         console.log('Created spreadsheet:', spreadsheetId);
         return spreadsheetId;
     } catch (error) {
         console.error('Failed to create spreadsheet:', error);
-        return undefined;
+        throw error;
     }
 }

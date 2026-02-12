@@ -1,12 +1,13 @@
 import { Request, Response, NextFunction } from 'express';
-import { verifyRefreshToken, extractGoogleCredentials } from '../modules/auth/auth.service';
-import { refreshGoogleAccessToken } from '../modules/auth/google/google.auth.service';
 import AuthException from './auth.exception';
+import jwt from 'jsonwebtoken';
+import { UserPayload } from '../core/types/userpayload.types';
+import { GoogleTokenRepository } from '../data/repositories/google.token.repository';
 
 declare global {
     namespace Express {
         interface Request {
-            google?: {
+            google: {
                 accessToken: string;
                 spreadsheetId: string;
             };
@@ -16,23 +17,25 @@ declare global {
 
 export const googleAuth = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const refreshTokenHeader = req.headers['x-refresh-token'] as string;
+        const authHeader = req.headers.authorization;
 
-        if (!refreshTokenHeader) {
-            return next(AuthException.refreshTokenRequired());
+        if (!authHeader || !authHeader.startsWith('Bearer ')) {
+            return next(AuthException.tokenRequired());
+        }
+        const token = authHeader.split(' ')[1];
+        const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as UserPayload;
+        const cachedTokenData = await GoogleTokenRepository.getTokens(decoded.googleId);
+
+        if (cachedTokenData) {
+            req.google = {
+                accessToken: cachedTokenData.accessToken,
+                spreadsheetId: cachedTokenData.spreadsheetId
+            };
+            return next();
         }
 
-        const refreshPayload = verifyRefreshToken(refreshTokenHeader);
-        const { googleRefreshToken, spreadsheetId } = extractGoogleCredentials(refreshPayload);
+        return next(AuthException.googleCredentialsNotFound());
 
-        if (!googleRefreshToken || !spreadsheetId) {
-            return next(AuthException.googleCredentialsNotFound());
-        }
-
-        const accessToken = await refreshGoogleAccessToken(googleRefreshToken);
-
-        req.google = { accessToken, spreadsheetId };
-        next();
     } catch (error) {
         next(error);
     }

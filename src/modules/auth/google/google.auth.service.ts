@@ -24,7 +24,7 @@ export async function exchangeCodeForTokens(code: string): Promise<GoogleTokenRe
         code,
         client_id: process.env.CLIENT_ID,
         client_secret: process.env.CLIENT_SECRET,
-        redirect_uri: process.env.REDIRECT_URI,
+        redirect_uri: process.env.NGROK_DOMAIN + '/auth/google/callback',
         grant_type: 'authorization_code'
     });
     return response.data;
@@ -45,7 +45,7 @@ export async function refreshGoogleAccessToken(refreshToken: string): Promise<st
 export async function getOrCreateUserSpreadsheet(
     accessToken: string,
     title: string = 'Somai History'
-): Promise<string | undefined> {
+): Promise<string> {
     const existingId = await findExistingSpreadsheet(accessToken, title);
     if (existingId) {
         return existingId;

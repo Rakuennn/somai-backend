@@ -1,4 +1,5 @@
 import express, { Request, Response, NextFunction } from 'express';
+import { GoogleTokenRepository } from '../../../data/repositories/google.token.repository';
 import { cleanupExpiredStates, oauthStates } from '../../../core/utils/cleanup.expired.state';
 import crypto from 'crypto';
 import { BaseResponse } from '../../../core/types/base.response';
@@ -28,7 +29,7 @@ router.get('/login/google', (req: Request, res: Response) => {
 
     const params = new URLSearchParams({
         client_id: process.env.CLIENT_ID as string,
-        redirect_uri: process.env.REDIRECT_URI as string,
+        redirect_uri: process.env.NGROK_DOMAIN + '/auth/google/callback' as string,
         response_type: 'code',
         scope: OAUTH_SCOPES.join(' '),
         state,
@@ -60,10 +61,15 @@ router.get('/auth/google/callback', async (
         const userData = mapToUserPayload(googleUserInfo);
 
         const { accessToken, refreshToken } = generateAuthTokens(
-            userData,
-            refresh_token,
-            spreadsheetId
+            userData
         );
+
+        await GoogleTokenRepository.saveTokens(userData.googleId, {
+            accessToken: access_token,
+            refreshToken: refresh_token || '',
+            spreadsheetId: spreadsheetId,
+            expiresAt: Date.now() + 3500 * 1000
+        });
 
         sendSuccess(res, {
             accessToken,
@@ -72,6 +78,8 @@ router.get('/auth/google/callback', async (
         }, 'Login successful');
 
     } catch (error) {
-        next(error);
+        next(AuthException.googleAuthFailed());
     }
 });
+
+export default router;

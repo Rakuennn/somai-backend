@@ -1,4 +1,4 @@
-export const oauthStates = new Map<string, { createdAt: number }>();
+export const oauthStates = new Map<string, { createdAt: number; googleId?: string }>();
 
 export function cleanupExpiredStates() {
     const now = Date.now();

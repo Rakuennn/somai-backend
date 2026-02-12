@@ -6,6 +6,8 @@ import { RefreshData } from './auth.response';
 import { RefreshRequest } from './auth.request';
 import { sendSuccess, sendSuccessNoData } from '../../core/utils/response.helper';
 import { generateAccessToken, verifyRefreshToken } from './auth.service';
+import facebookRouter from './facebook/router';
+import googleRouter from './google/router';
 
 const router = express.Router();
 
@@ -59,5 +61,6 @@ router.post('/logout', (req: Request, res: Response<BaseResponse>) => {
     });
 });
 
-
+router.use(facebookRouter);
+router.use(googleRouter);
 export default router;

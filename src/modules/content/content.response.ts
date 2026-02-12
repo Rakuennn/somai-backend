@@ -1,9 +1,7 @@
 import { Platform } from "../../core/types/platform.enum";
 
 export interface ContentItem {
-    id: string;
     platform: Platform;
-    brief: string;
     content: string;
 }
 
@@ -35,4 +33,24 @@ export interface N8nContentNode {
 
 export interface N8nResponse {
     generated_content: N8nContentNode[];
+}
+
+export interface N8nCheckResponse {
+    status: string;
+    message: string;
+    job_id: string;
+    result: N8nResponse;
+}
+
+export interface N8nRefineResponse {
+    status: string;
+    message: string;
+    job_id: string;
+    result: string;
+}
+
+export interface CreateContentResponse {
+    status: string;
+    message: string;
+    job_id: string;
 }

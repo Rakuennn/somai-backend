@@ -1,3 +1,8 @@
-export interface FacebookLoginResponse {
-    accessToken: string;
+export interface FacebookTokenResponse {
+    user_id: string;
+    user_access_token: string;
+    pages: {
+        id: string;
+        access_token: string;
+    }[]
 }

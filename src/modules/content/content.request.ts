@@ -14,5 +14,5 @@ export interface RefineContentsRequest {
 export interface SubmitContentsRequest {
     content: string;
     platform: Platform;
-    link?: string;
+    image?: string;
 }

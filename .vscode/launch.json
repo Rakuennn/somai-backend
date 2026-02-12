@@ -8,7 +8,7 @@
             "runtimeExecutable": "npx",
             "runtimeArgs": [
                 "ts-node",
-                "${workspaceFolder}/index.ts"
+                "${workspaceFolder}/src/index.ts"
             ],
             "restart": true,
             "console": "integratedTerminal",
@@ -23,7 +23,7 @@
                 "nodemon",
                 "--exec",
                 "ts-node",
-                "${workspaceFolder}/index.ts"
+                "${workspaceFolder}/src/index.ts"
             ],
             "restart": true,
             "console": "integratedTerminal",

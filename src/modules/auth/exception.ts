@@ -22,6 +22,14 @@ export class AuthException extends GlobalException {
     static tokenExpired(): AuthException {
         return new AuthException(ErrorDefinitions.AUTH_TOKEN_EXPIRED);
     }
+
+    static facebookAuthFailed(): AuthException {
+        return new AuthException(ErrorDefinitions.AUTH_FACEBOOK_FAILED);
+    }
+
+    static googleAuthFailed(): AuthException {
+        return new AuthException(ErrorDefinitions.AUTH_GOOGLE_FAILED);
+    }
 }
 
 export default AuthException;

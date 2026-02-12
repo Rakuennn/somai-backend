@@ -10,6 +10,34 @@ export class ContentException extends GlobalException {
     static spreadsheetSaveFailed(): ContentException {
         return new ContentException(ErrorDefinitions.CONTENT_SPREADSHEET_SAVE_FAILED);
     }
+
+    static n8nFailed(): ContentException {
+        return new ContentException(ErrorDefinitions.CONTENT_N8N_FAILED);
+    }
+
+    static n8nFailedWithMessage(message: string): ContentException {
+        return new ContentException(ErrorDefinitions.VALIDATION_ERROR, message);
+    }
+
+    static platformNotConnected(platform: string): ContentException {
+        return new ContentException(ErrorDefinitions.PLATFORM_NOT_CONNECTED, `Platform ${platform} is not connected.`);
+    }
+
+    static unauthorized(): ContentException {
+        return new ContentException(ErrorDefinitions.AUTH_UNAUTHORIZED);
+    }
+
+    static pollingTimeout(): ContentException {
+        return new ContentException(ErrorDefinitions.CONTENT_POLLING_TIMEOUT);
+    }
+
+    static pollingCancelled(): ContentException {
+        return new ContentException(ErrorDefinitions.CONTENT_POLLING_CANCELLED);
+    }
+
+    static pollingUnexpectedStatus(status: string): ContentException {
+        return new ContentException(ErrorDefinitions.CONTENT_POLLING_UNEXPECTED_STATUS, `Unexpected status: ${status}`);
+    }
 }
 
 export default ContentException;
