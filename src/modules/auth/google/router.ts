@@ -2,12 +2,10 @@ import express, { Request, Response, NextFunction } from 'express';
 import { GoogleTokenRepository } from '../../../data/repositories/google.token.repository';
 import { cleanupExpiredStates, oauthStates } from '../../../core/utils/cleanup.expired.state';
 import crypto from 'crypto';
-import { BaseResponse } from '../../../core/types/base.response';
 import AuthException from '../exception';
 import { exchangeCodeForTokens, fetchGoogleUserInfo, getOrCreateUserSpreadsheet, mapToUserPayload } from './google.auth.service';
 import { generateAuthTokens } from '../auth.service';
-import { sendSuccess } from '../../../core/utils/response.helper';
-import { GoogleLoginResponse } from './google.response';
+import { sendPostMessageResponse } from '../../../core/utils/oauth.callback.helper';
 
 const router = express.Router();
 const GOOGLE_AUTH_URL = 'https://accounts.google.com/o/oauth2/v2/auth';
@@ -42,7 +40,7 @@ router.get('/login/google', (req: Request, res: Response) => {
 
 router.get('/auth/google/callback', async (
     req: Request,
-    res: Response<BaseResponse<GoogleLoginResponse>>,
+    res: Response,
     next: NextFunction
 ) => {
     const { state, code } = req.query as { state: string; code: string };
@@ -71,11 +69,11 @@ router.get('/auth/google/callback', async (
             expiresAt: Date.now() + 3500 * 1000
         });
 
-        sendSuccess(res, {
+        sendPostMessageResponse(res, {
             accessToken,
             refreshToken,
             user: userData
-        }, 'Login successful');
+        });
 
     } catch (error) {
         next(AuthException.googleAuthFailed());

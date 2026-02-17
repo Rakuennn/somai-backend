@@ -5,7 +5,7 @@ import crypto from 'crypto';
 import { BaseResponse } from '../../../core/types/base.response';
 import AuthException from '../exception';
 import { exchangeFacebookCodeForToken } from './facebook.auth.service';
-import { sendSuccessNoData } from '../../../core/utils/response.helper';
+import { sendPostMessageResponse } from '../../../core/utils/oauth.callback.helper';
 import jwt from 'jsonwebtoken';
 import { UserPayload } from '../../../core/types/userpayload.types';
 const router = express.Router();
@@ -102,7 +102,7 @@ router.get('/auth/facebook/callback',
                 expiresAt: Date.now() + 60 * 24 * 60 * 60 * 1000
             });
 
-            sendSuccessNoData(res, 'Facebook login successful');
+            sendPostMessageResponse(res, { message: 'Facebook login successful' });
 
         } catch (error) {
             console.error('Facebook callback error:', error);
