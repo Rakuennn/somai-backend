@@ -80,7 +80,7 @@ router.get('/auth/facebook/callback',
         const savedState = oauthStates.get(state);
 
         if (!savedState) {
-            return next(AuthException.forbidden());
+            return sendPostMessageResponse(res, { message: 'Invalid or expired OAuth state' }, false);
         }
 
         oauthStates.delete(state);
@@ -89,7 +89,7 @@ router.get('/auth/facebook/callback',
             const { user_id, user_access_token, pages } = await exchangeFacebookCodeForToken(code);
 
             if (!savedState.googleId) {
-                return next(AuthException.forbidden());
+                return sendPostMessageResponse(res, { message: 'Invalid OAuth state: missing user' }, false);
             }
 
             await FacebookTokenRepository.saveToken(savedState.googleId, {
@@ -106,7 +106,7 @@ router.get('/auth/facebook/callback',
 
         } catch (error) {
             console.error('Facebook callback error:', error);
-            return next(AuthException.facebookAuthFailed());
+            return sendPostMessageResponse(res, { message: 'Facebook authentication failed' }, false);
         }
     });
 
