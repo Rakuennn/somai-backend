@@ -54,3 +54,13 @@ export interface CreateContentResponse {
     message: string;
     job_id: string;
 }
+
+export interface SpreadsheetRow {
+    platform: string;
+    timestamp: string;
+    link: string;
+}
+
+export interface SpreadsheetHistoryResponse {
+    rows: SpreadsheetRow[];
+}

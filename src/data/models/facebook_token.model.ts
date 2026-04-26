@@ -2,6 +2,7 @@ export interface FacebookPageData {
     id: string;
     name?: string;
     accessToken: string;
+    instagramAccountId?: string;
 }
 
 export interface FacebookTokenData {

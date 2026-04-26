@@ -4,6 +4,10 @@ import contentRouter from './modules/content/router';
 
 const router = express.Router();
 
+router.get('/', (req, res) => {
+    res.send('Welcome to API');
+});
+
 router.use(authRouter);
 router.use(contentRouter);
 

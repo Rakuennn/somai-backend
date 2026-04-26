@@ -53,7 +53,10 @@ router.get('/auth/facebook', (req, res, next) => {
     const scope = [
         "pages_show_list",
         "pages_manage_posts",
-        "pages_read_engagement"
+        "pages_read_engagement",
+        "instagram_basic",
+        "instagram_content_publish",
+        "business_management"
     ].join(",")
 
     const FacebookAuthUrl = 'https://www.facebook.com/v24.0/dialog/oauth';
@@ -98,6 +101,7 @@ router.get('/auth/facebook/callback',
                 pages: pages.map(p => ({
                     id: p.id,
                     accessToken: p.access_token,
+                    instagramAccountId: p.instagram_account_id,
                 })),
                 expiresAt: Date.now() + 60 * 24 * 60 * 60 * 1000
             });

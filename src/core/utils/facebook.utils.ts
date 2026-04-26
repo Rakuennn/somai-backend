@@ -55,7 +55,8 @@ export async function publishToFacebookPage({
         }
     );
 
-    const url = await getFacebookPostUrl(res.data.id, pageAccessToken);
+    const targetId = res.data.post_id || res.data.id;
+    const url = await getFacebookPostUrl(targetId, pageAccessToken);
 
     return {
         ...res.data,
@@ -92,7 +93,8 @@ export async function publishFacebookPhoto({
             }
         );
 
-        const url = await getFacebookPostUrl(res.data.id, pageAccessToken);
+        const targetId = res.data.post_id || res.data.id;
+        const url = await getFacebookPostUrl(targetId, pageAccessToken);
 
         return {
             ...res.data,
@@ -119,7 +121,8 @@ export async function publishFacebookPhoto({
             }
         );
 
-        const url = await getFacebookPostUrl(res.data.id, pageAccessToken);
+        const targetId = res.data.post_id || res.data.id;
+        const url = await getFacebookPostUrl(targetId, pageAccessToken);
 
         return {
             ...res.data,
@@ -129,19 +132,34 @@ export async function publishFacebookPhoto({
 }
 
 async function getFacebookPostUrl(postId: string, pageAccessToken: string): Promise<string | undefined> {
-    try {
-        const getRes = await axios.get<{ permalink_url?: string; link?: string }>(
-            `${FACEBOOK_GRAPH_URL}/${postId}`,
-            {
-                params: {
-                    fields: 'permalink_url,link',
-                    access_token: pageAccessToken
-                }
+    const maxRetries = 3;
+    const retryDelay = 1000;
+
+    for (let i = 0; i < maxRetries; i++) {
+        try {
+            if (i > 0) {
+                await new Promise(resolve => setTimeout(resolve, retryDelay));
             }
-        );
-        return getRes.data.permalink_url || getRes.data.link;
-    } catch (error) {
-        console.error('Failed to fetch post URL:', error);
-        return undefined;
+
+            const getRes = await axios.get<{ permalink_url?: string; link?: string }>(
+                `${FACEBOOK_GRAPH_URL}/${postId}`,
+                {
+                    params: {
+                        fields: 'permalink_url',
+                        access_token: pageAccessToken
+                    }
+                }
+            );
+
+            const url = getRes.data.permalink_url || getRes.data.link;
+            if (url) return url;
+
+            console.warn(`Attempt ${i + 1}: Facebook URL not found for ID: ${postId}`);
+        } catch (error) {
+            console.error(`Attempt ${i + 1}: Failed to fetch post URL for ID: ${postId}`, error);
+        }
     }
+
+    console.error(`Final failure: Could not fetch Facebook URL for ID: ${postId} after ${maxRetries} attempts.`);
+    return undefined;
 }

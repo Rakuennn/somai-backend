@@ -4,5 +4,6 @@ export interface FacebookTokenResponse {
     pages: {
         id: string;
         access_token: string;
+        instagram_account_id?: string;
     }[]
 }

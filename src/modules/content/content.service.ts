@@ -1,7 +1,7 @@
 import axios from "axios";
 import { createSheetsClient } from "../../core/utils/spreadsheet.helper";
 import { ContentException } from "./exception";
-import { N8nCheckResponse, N8nRefineResponse, N8nResponse } from "./content.response";
+import { N8nCheckResponse, N8nRefineResponse, N8nResponse, SpreadsheetRow } from "./content.response";
 
 export interface SpreadsheetRowData {
     platform: string;
@@ -57,6 +57,35 @@ export async function appendToSpreadsheet(
         console.error('Failed to append to spreadsheet:', error);
         return false;
     }
+}
+
+export async function getSpreadsheetData(
+    accessToken: string,
+    spreadsheetId: string
+): Promise<SpreadsheetRow[]> {
+    const sheets = createSheetsClient(accessToken);
+    const meta = await sheets.spreadsheets.get({ spreadsheetId });
+    const sheetTitle = meta.data.sheets?.[0].properties?.title;
+
+    if (!sheetTitle) {
+        return [];
+    }
+
+    const rangeName = `'${sheetTitle}'`;
+    const result = await sheets.spreadsheets.values.get({
+        spreadsheetId,
+        range: rangeName,
+    });
+
+    const rows = result.data.values ?? [];
+
+    const dataRows = rows.length > 1 ? rows.slice(1) : [];
+
+    return dataRows.map((row) => ({
+        platform: row[0] ?? '',
+        timestamp: row[1] ?? '',
+        link: row[2] ?? '',
+    }));
 }
 
 export async function pollForResult(jobId: string, signal?: AbortSignal): Promise<N8nResponse> {

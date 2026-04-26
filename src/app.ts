@@ -4,6 +4,8 @@ import swaggerJSDoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
 import router from './router';
 import { errorHandler } from './middlewares/error.middleware';
+import morgan from 'morgan';
+import path from 'path';
 
 const app: Application = express();
 
@@ -44,7 +46,12 @@ const swaggerSpec = swaggerJSDoc(options);
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use(cors());
+app.use(cors({
+    origin: '*',
+    allowedHeaders: ['Content-Type', 'Authorization', 'ngrok-skip-browser-warning'],
+}));
+app.use(morgan('dev'));
+app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 app.use('/docs', swaggerUi.serve, (req: Request, res: Response, next: NextFunction) => {
     const protocol = req.headers['x-forwarded-proto'] || req.protocol;
     const host = req.headers['x-forwarded-host'] || req.get('host');

@@ -23,6 +23,10 @@ export class ContentException extends GlobalException {
         return new ContentException(ErrorDefinitions.PLATFORM_NOT_CONNECTED, `Platform ${platform} is not connected.`);
     }
 
+    static invalidImage(): ContentException {
+        return new ContentException(ErrorDefinitions.VALIDATION_ERROR, 'Instagram requires a valid attached image to post.');
+    }
+
     static unauthorized(): ContentException {
         return new ContentException(ErrorDefinitions.AUTH_UNAUTHORIZED);
     }
